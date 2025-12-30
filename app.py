@@ -1,5 +1,5 @@
 import streamlit as st
-import requests  # 如果你的后端是 API 接口
+from chat import get_ai_response
 
 # --- 页面配置 ---
 st.set_page_config(page_title="海龟汤 AI 调试器", page_icon="🐢")
@@ -13,7 +13,7 @@ if "messages" not in st.session_state:
 
 # --- 显示历史对话框 (输出框) ---
 # 这个区域会自动根据内容增长，展示 AI 和玩家的对话
-chat_container = st.container(height=400)
+chat_container = st.container(height=600)
 with chat_container:
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -36,7 +36,8 @@ if prompt := st.chat_input("输入你的推论..."):
             # answer = response.json().get("answer")
             
             # 占位符：模拟后端返回
-            answer = f"后端已收到：'{prompt}'。这里是 AI 的回答（是/不是/不相关）。" 
+            answer = get_ai_response(prompt)
+            # answer = f"后端已收到：'{prompt}'。这里是 AI 的回答（是/不是/不相关）。" 
             
         except Exception as e:
             answer = f"错误：无法连接到后端。{str(e)}"
