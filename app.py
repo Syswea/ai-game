@@ -20,24 +20,19 @@ with chat_container:
             st.markdown(message["content"])
 
 # --- 玩家输入框 ---
-if prompt := st.chat_input("输入你的推论..."):
+if usr_input := st.chat_input("输入你的推论..."):
     # 1. 在界面显示玩家输入
     with chat_container:
-        st.chat_message("user").markdown(prompt)
+        st.chat_message("user").markdown(usr_input)
     
     # 将输入存入会话状态
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.messages.append({"role": "user", "content": usr_input})
 
     # 2. 调用后端逻辑 (这里你可以连接你的 AI 模型或 API)
     with st.spinner('AI 正在思考中...'):
         try:
-            # 示例：连接你的本地后端 API
-            # response = requests.post("http://localhost:3000/chat", json={"query": prompt})
-            # answer = response.json().get("answer")
-            
             # 占位符：模拟后端返回
-            answer = get_ai_response(prompt)
-            # answer = f"后端已收到：'{prompt}'。这里是 AI 的回答（是/不是/不相关）。" 
+            answer = get_ai_response(usr_input)
             
         except Exception as e:
             answer = f"错误：无法连接到后端。{str(e)}"
