@@ -7,9 +7,16 @@ st.set_page_config(page_title="海龟汤 AI 调试器", page_icon="🐢")
 st.title("🐢 海龟汤 AI 调试后台")
 st.markdown("---")
 
+# 汤面
+open_context = ""
+# 汤底
+main_context = ""
+
 # --- 初始化聊天历史 (Streamlit 会话状态) ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+# 由用户输入汤面和汤底 弹框形式，有确认按钮
 
 # --- 显示历史对话框 (输出框) ---
 # 这个区域会自动根据内容增长，展示 AI 和玩家的对话
@@ -18,6 +25,11 @@ with chat_container:
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+
+# 以AI的视角输出汤面
+with chat_container:
+        with st.chat_message("assistant"):
+            st.markdown(open_context)
 
 # --- 玩家输入框 ---
 if usr_input := st.chat_input("输入你的推论..."):
