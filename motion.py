@@ -4,7 +4,7 @@ import requests  # 新增：用于调用本地 API
 # --- 配置：指向你本地穿透出来的公网 URL ---
 # 注意：如果是 frp，通常是 "http://云服务器IP:端口/logic"
 # 如果是 Cloudflare，通常是 "https://xxx.trycloudflare.com/logic"
-API_ENDPOINT = "http://你的公网IP:你的映射端口/logic" 
+API_ENDPOINT = "https://disclaimer-tested-competitions-faces.trycloudflare.com:8123/logic" 
 
 st.set_page_config(page_title="海龟汤 AI 调试器", page_icon="🐢")
 st.title("🐢 海龟汤 AI 调试后台")
