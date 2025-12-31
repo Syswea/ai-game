@@ -1,11 +1,17 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
 from openai import OpenAI
+import uvicorn
 
+app = FastAPI()
 client = OpenAI(base_url="http://127.0.0.1:1234/v1", api_key="lm-studio")
 
-# 汤面（开场白）
+# 核心配置
 open_context = "男人喝一口水,突然吐了出来"
-# 汤底（真相）
 main_context = "男人把盐当成糖,放到了水中"
+
+class ChatRequest(BaseModel):
+    usr_input: str
 
 def response(usr_input, system_prompt):
     try:
@@ -15,15 +21,19 @@ def response(usr_input, system_prompt):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": usr_input}
             ],
-            temperature=0.0, # 逻辑判别任务建议 0.0，保持高度一致性
+            temperature=0.0,
         )
         return completion.choices[0].message.content
     except Exception as e:
         return f"发生错误: {e}"
 
-# 返回到前端
-def get_ai_response(usr_input):
-    # 1. 语义分析与合法性判断
+@app.post("/logic")
+async def get_ai_logic(request: ChatRequest):
+    usr_input = request.usr_input
+    
+    # --- 完全保留你原有的四步逻辑 ---
+    
+    # 1. 语义分析
     analyst_prompt = f"""
     【背景】：汤面为“{open_context}”。
     【任务】：分析用户问题。
@@ -34,11 +44,10 @@ def get_ai_response(usr_input):
     """
     analyst_result = response(usr_input, analyst_prompt)
     
-    # 如果分析阶段就判定不合规，直接拦截
     if "不合规" in analyst_result:
-        return "我不知道 (请提问与故事相关的是非题)"
+        return {"answer": "我不知道 (请提问与故事相关的是非题)"}
 
-    # 2. 肯定证据列举 (Positive Chain)
+    # 2. 肯定证据列举
     positive_prompt = f"""
     【真相】：{main_context}
     【分析报告】：{analyst_result}
@@ -46,7 +55,7 @@ def get_ai_response(usr_input):
     """
     pos_evidence = response(usr_input, positive_prompt)
 
-    # 3. 否定证据列举 (Negative Chain)
+    # 3. 否定证据列举
     negative_prompt = f"""
     【真相】：{main_context}
     【分析报告】：{analyst_result}
@@ -54,7 +63,7 @@ def get_ai_response(usr_input):
     """
     neg_evidence = response(usr_input, negative_prompt)
 
-    # 4. 最终裁决 (Final Judge)
+    # 4. 最终裁决
     judge_prompt = f"""
     你是一个终审法官。请对比以下两份报告，给出“是的”、“不是”或“我不知道”。
     
@@ -68,10 +77,12 @@ def get_ai_response(usr_input):
     
     最终回答仅限词汇：是的、不是、我不知道。
     """
-    
     final_decision = response(usr_input, judge_prompt)
     
-    # 调试用：你可以打印出 pos 和 neg 看看它是如何“左右互搏”的
+    # 打印调试信息（本地控制台可见）
     print(f"DEBUG - Pos: {pos_evidence}\nNeg: {neg_evidence}")
     
-    return final_decision
+    return {"answer": final_decision}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8123)

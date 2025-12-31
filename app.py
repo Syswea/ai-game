@@ -31,7 +31,7 @@ if usr_input := st.chat_input("输入你的推论..."):
     # 2. 调用后端逻辑 (这里你可以连接你的 AI 模型或 API)
     with st.spinner('AI 正在思考中...'):
         try:
-            # 占位符：模拟后端返回
+            # 调用后端大模型
             answer = get_ai_response(usr_input)
             
         except Exception as e:
